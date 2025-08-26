@@ -7,7 +7,8 @@ class Pilha:
 
     def desempilhar(self):
         if not self.vazia():
-            return self.itens.pop
+            self.itens.pop
+            return
         return None
     
     def vazia(self):

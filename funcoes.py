@@ -49,7 +49,7 @@ def listar_produtos():
 
 def valor_total_estoque():
     total = sum(p.quantidade * p.preco for p in estoque)
-    print(f"Valor total do estoque: R${total:.2f}")
+    print(f"Valor total do estoque: R${total}")
 
 
 def realizar_venda():
@@ -97,7 +97,8 @@ def desfazer():
     if pilha_operacoes.vazia():
         print("Nenhuma operação para desfazer.")
         return
-    operacao, objeto = pilha_operacoes.desempilhar()
+
+    operacao, objeto = pilha_operacoes.desempilhar()  # desempilha a tupla
 
     if operacao == "cadastro_produto":
         if objeto in estoque:
@@ -112,6 +113,9 @@ def desfazer():
     elif operacao == "venda":
         objeto.produto.quantidade += objeto.quantidade
         objeto.cliente.total_gasto -= objeto.valor_total
-        if objeto in fila_vendas.listar():
-            fila_vendas.listar().remove(objeto)
+
+        vendas = fila_vendas.listar()
+        if objeto in vendas:
+            vendas.remove(objeto)
+
         print(f"Venda do produto '{objeto.produto.nome}' desfeita com sucesso!")
