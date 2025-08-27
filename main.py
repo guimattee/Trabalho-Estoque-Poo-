@@ -4,10 +4,7 @@ from Venda import Venda
 from Fila import Fila
 from Pilha import Pilha
 from funcoes import *
-estoque = []
-clientes = []
-fila_vendas = Fila()
-pilha_operacoes = Pilha()
+
 
 
 def menu():

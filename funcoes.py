@@ -3,7 +3,11 @@ from Produto import Produto
 from Venda import Venda
 from Fila import Fila
 from Pilha import Pilha
-from main import clientes, estoque, fila_vendas, pilha_operacoes
+
+estoque = []
+clientes = []
+fila_vendas = Fila()
+pilha_operacoes = Pilha()
 
 def cadastrar_cliente():
     id_cliente = len(clientes) + 1
@@ -28,18 +32,27 @@ def listar_clientes_valores():
 
 
 def cadastrar_produto():
-    id_produto = len(estoque) + 1
-    nome = input("Digite o nome do produto: ")
+    nome = input("Digite o nome do produto: ").strip()
     try:
         quantidade = int(input("Digite a quantidade: "))
         preco = float(input("Digite o preço: "))
     except ValueError:
         print("Entrada inválida!")
         return
-    produto = Produto(id_produto, nome, quantidade, preco)
-    estoque.append(produto)
-    pilha_operacoes.empilhar(("cadastro_produto", produto))
-    print(f"Produto cadastrado com sucesso! (ID: {id_produto})")
+
+    produto_existente = next((p for p in estoque if p.nome.lower() == nome.lower()), None)
+
+    if produto_existente:
+        produto_existente.quantidade += quantidade
+        produto_existente.preco = preco  
+        pilha_operacoes.empilhar(("atualizacao_produto", (produto_existente, quantidade, preco)))
+        print(f"Quantidade do produto '{produto_existente.nome}' atualizada com sucesso!")
+    else:
+        id_produto = len(estoque) + 1
+        produto = Produto(id_produto, nome, quantidade, preco)
+        estoque.append(produto)
+        pilha_operacoes.empilhar(("cadastro_produto", produto))
+        print(f"Produto cadastrado com sucesso! (ID: {id_produto})")
 
 def listar_produtos():
     if not estoque:
@@ -98,7 +111,12 @@ def desfazer():
         print("Nenhuma operação para desfazer.")
         return
 
-    operacao, objeto = pilha_operacoes.desempilhar()  # desempilha a tupla
+    resultado = pilha_operacoes.desempilhar()
+    if resultado is None:
+        print("Nenhuma operação para desfazer.")
+        return
+
+    operacao, objeto = resultado
 
     if operacao == "cadastro_produto":
         if objeto in estoque:
@@ -108,6 +126,9 @@ def desfazer():
     elif operacao == "cadastro_cliente":
         if objeto in clientes:
             clientes.remove(objeto)
+            # reorganiza IDs
+            for idx, cliente in enumerate(clientes, start=1):
+                cliente.id = idx
         print(f"Desfeito cadastro do cliente '{objeto.nome}'.")
 
     elif operacao == "venda":
@@ -119,3 +140,11 @@ def desfazer():
             vendas.remove(objeto)
 
         print(f"Venda do produto '{objeto.produto.nome}' desfeita com sucesso!")
+
+    elif operacao == "atualizacao_produto":
+        produto, quantidade, preco = objeto
+        # desfaz a atualização: reduz a quantidade
+        produto.quantidade -= quantidade
+        produto.preco = preco  # volta para o preço antigo (se armazenado assim)
+        print(f"Atualização do produto '{produto.nome}' desfeita.")
+

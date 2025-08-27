@@ -2,20 +2,19 @@ class Pilha:
     def __init__(self):
         self.itens = []
 
-    def empilhar(self,item):
+    def empilhar(self, item):
         self.itens.append(item)
 
     def desempilhar(self):
-        if not self.vazia():
-            self.itens.pop
-            return
-        return None
-    
+        if self.vazia():
+            return None 
+        return self.itens.pop()
+
     def vazia(self):
         return len(self.itens) == 0
-    
-    def topo (self):
-        if not self.vazia():
-            return self.itens[-1]
-        return None
+
+    def topo(self):
+        if self.vazia():
+            return None
+        return self.itens[-1]
     
